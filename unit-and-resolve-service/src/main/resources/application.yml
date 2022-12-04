@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: unit-and-resolve-service
+  r2dbc:
+    url: r2dbc:postgresql://localhost/unit-and-resolve
+    username: postgres
+    password: 12345
+  liquibase:
+    url: jdbc:postgresql://localhost/unit-and-resolve
+    user: postgres
+    password: 12345
+
+
+server:
+  port: 8001
