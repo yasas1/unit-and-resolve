@@ -23,6 +23,7 @@ public class UserUtil {
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .profilePicBase64(user.getProfilePicBase64())
                 .createdDateTime(user.getCreatedDateTime())
                 .lastModifiedDateTime(user.getLastModifiedDateTime())
                 .build();

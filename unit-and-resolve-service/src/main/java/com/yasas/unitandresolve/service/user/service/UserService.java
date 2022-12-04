@@ -9,4 +9,6 @@ public interface UserService {
     Mono<UserDto> createUser(UserDto userDto);
 
     Flux<UserDto> findAllUsers();
+
+    Mono<UserDto> findByEmail(String email);
 }

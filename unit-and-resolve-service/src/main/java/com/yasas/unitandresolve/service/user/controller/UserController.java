@@ -23,4 +23,9 @@ public class UserController {
     public Flux<UserDto> findAllUsers(){
         return userService.findAllUsers();
     }
+
+    @GetMapping("/{email}")
+    public Mono<UserDto> findByEmail(@PathVariable(name = "email") String email){
+        return userService.findByEmail(email);
+    }
 }

@@ -6,8 +6,10 @@ import com.yasas.unitandresolve.service.user.repository.UserRepository;
 import com.yasas.unitandresolve.service.user.service.UserService;
 import com.yasas.unitandresolve.service.user.util.UserUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -31,6 +33,13 @@ public class UserServiceImpl implements UserService {
         }
         System.out.println(user);
         return userRepository.save(user).map(UserUtil::mapUserToUserDto);
+    }
+
+    @Override
+    public Mono<UserDto> findByEmail(String email){
+        return userRepository.findByEmail(email)
+                .map(UserUtil::mapUserToUserDto)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT,"User not found")));
     }
 
     @Override

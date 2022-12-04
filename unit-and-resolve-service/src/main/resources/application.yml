@@ -9,6 +9,17 @@ spring:
     url: jdbc:postgresql://localhost/unit-and-resolve
     user: postgres
     password: 12345
+  mail:
+    host: smtp.gmial.com
+    port: 587
+    username: common.usercreation@gmail.com
+    password: aobdqwesalfnoyjb
+    properties:
+      mail:
+        smtp:
+          auth: true
+        starttls:
+          enable: true
 
 
 server:
