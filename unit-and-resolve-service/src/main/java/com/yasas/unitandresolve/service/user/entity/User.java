@@ -19,6 +19,8 @@ public class User {
     private String firstName;
     @Column(value = "lastname")
     private String lastName;
+    @Column(value = "password")
+    private String password;
     @Column(value = "profilepicbase64")
     private String profilePicBase64;
     @Column(value = "createddatetime")

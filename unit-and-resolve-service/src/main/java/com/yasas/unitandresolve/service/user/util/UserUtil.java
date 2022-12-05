@@ -30,10 +30,17 @@ public class UserUtil {
     }
 
     public static void validateUserCreateRequest(UserDto userDto) {
-        if (userDto.getEmail() == null || userDto.getFirstName() == null || userDto.getLastName() == null ||
-                userDto.getEmail().isBlank() || userDto.getFirstName().isBlank() || userDto.getLastName().isBlank()) {
+        if (userDto.getEmail() == null || userDto.getFirstName() == null || userDto.getLastName() == null || userDto.getPassword() == null ||
+                userDto.getEmail().isBlank() || userDto.getFirstName().isBlank() || userDto.getLastName().isBlank() || userDto.getPassword().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad user create request");
         }
+        if (!isStrong(userDto.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your password is not strong");
+        }
+    }
+
+    public static boolean isStrong(String password){
+        return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!\\-@%#&()_[{}]:;',?\\\\|/\".*~`$^+=<>])[A-Za-z\\d!\\-@%#&()_[{}]:;',?\\\\|/\".*~`$^+=<>]{8,}$");
     }
 
 }

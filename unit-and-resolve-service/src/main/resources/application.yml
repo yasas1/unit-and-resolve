@@ -10,16 +10,16 @@ spring:
     user: postgres
     password: 12345
   mail:
-    host: smtp.gmial.com
+    host: smtp.gmail.com
     port: 587
     username: common.usercreation@gmail.com
-    password: aobdqwesalfnoyjb
+    password: culusfiikfawsnqh
     properties:
       mail:
         smtp:
           auth: true
-        starttls:
-          enable: true
+          starttls:
+            enable: true
 
 
 server:

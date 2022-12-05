@@ -33,6 +33,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
                   name: profilepicbase64
                   type: varchar
                   constraints:

@@ -1,5 +1,6 @@
 package com.yasas.unitandresolve.service.user.controller;
 
+import com.yasas.unitandresolve.service.common.ResponseMessage;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import com.yasas.unitandresolve.service.user.service.UserService;
 import lombok.AllArgsConstructor;
@@ -27,5 +28,10 @@ public class UserController {
     @GetMapping("/{email}")
     public Mono<UserDto> findByEmail(@PathVariable(name = "email") String email){
         return userService.findByEmail(email);
+    }
+
+    @GetMapping("/{email}/proceed")
+    public Mono<ResponseMessage> proceedWithEmail(@PathVariable(name = "email") String email){
+        return userService.proceedWithEmail(email);
     }
 }
