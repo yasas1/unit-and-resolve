@@ -11,7 +11,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    public void sendEmail(String toEmail, String subject, String body) {
+    public String sendEmail(String toEmail, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("common.usercreation@gmail.com");
         message.setTo(toEmail);
@@ -19,5 +19,7 @@ public class EmailService {
         message.setText(body);
 
         mailSender.send(message);
+
+        return toEmail;
     }
 }

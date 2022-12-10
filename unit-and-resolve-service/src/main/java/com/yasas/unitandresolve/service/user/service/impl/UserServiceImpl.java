@@ -4,8 +4,10 @@ import com.yasas.unitandresolve.service.common.CommonUtil;
 import com.yasas.unitandresolve.service.common.EmailService;
 import com.yasas.unitandresolve.service.common.ResponseMessage;
 import com.yasas.unitandresolve.service.user.entity.User;
+import com.yasas.unitandresolve.service.user.entity.VerificationCode;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import com.yasas.unitandresolve.service.user.repository.UserRepository;
+import com.yasas.unitandresolve.service.user.repository.VerificationCodeRepository;
 import com.yasas.unitandresolve.service.user.service.UserService;
 import com.yasas.unitandresolve.service.user.util.UserUtil;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final VerificationCodeRepository verificationCodeRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -51,18 +54,27 @@ public class UserServiceImpl implements UserService {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 
+    @Transactional
     @Override
     public Mono<ResponseMessage> proceedWithEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(user -> new ResponseMessage("Proceed to Login", 200))
-                .switchIfEmpty(Mono.defer(()-> Mono.just(sendEmailWithOTP(email))));
+                .switchIfEmpty(Mono.defer(()-> sendEmailWithOTP(email)));
     }
 
-    private ResponseMessage sendEmailWithOTP(String toEmail) {
+    private Mono<ResponseMessage> sendEmailWithOTP(String toEmail) {
         String otp = CommonUtil.generateCode(4);
-        String message = "Your verification code is " + otp;
-        emailService.sendEmail(toEmail, "UnR-Email Verification", message);
-        return new ResponseMessage("Verify Your Email", 204);
+        return createOrUpdateUserVerification(toEmail, otp)
+                .then(Mono.justOrEmpty(emailService.sendEmail(toEmail, "UnR-Email Verification", "Your verification code is " + otp))
+                        .map(verificationCode -> new ResponseMessage("Verify Your Email", 204)));
+    }
+
+    private Mono<VerificationCode> createOrUpdateUserVerification(String toEmail, String otp) {
+        return verificationCodeRepository.findByIdAndUserEmail(toEmail)
+                .flatMap(verificationCode -> verificationCodeRepository.save(VerificationCode.builder()
+                        .id(verificationCode.getId()).code(otp).userEmail(toEmail).expirationTime(System.currentTimeMillis() + 3600000).createdDateTime(System.currentTimeMillis()).build()))
+                .switchIfEmpty(Mono.defer(() -> verificationCodeRepository.save(VerificationCode.builder()
+                        .code(otp).userEmail(toEmail).expirationTime(System.currentTimeMillis() + 3600000).createdDateTime(System.currentTimeMillis()).build())));
     }
 
     @Override

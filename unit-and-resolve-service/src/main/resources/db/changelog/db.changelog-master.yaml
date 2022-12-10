@@ -52,3 +52,33 @@ databaseChangeLog:
                   type: bigint
                   constraints:
                     nullable: false
+        - createTable:
+            tableName: verification
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expirationtime
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: useremail
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: createddatetime
+                  type: bigint
+                  constraints:
+                    nullable: false
