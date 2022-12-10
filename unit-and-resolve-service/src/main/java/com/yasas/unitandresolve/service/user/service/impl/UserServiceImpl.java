@@ -12,6 +12,7 @@ import com.yasas.unitandresolve.service.user.repository.VerificationCodeReposito
 import com.yasas.unitandresolve.service.user.service.UserService;
 import com.yasas.unitandresolve.service.user.util.UserUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -37,7 +39,8 @@ public class UserServiceImpl implements UserService {
     public Mono<Object> createUser(UserCreateRequest request) {
         return userRepository.findByEmail(request.getEmail())
                 .flatMap(userExist -> Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your email is already registered")))
-                .switchIfEmpty(Mono.defer(() -> saveUserIfValid(request).map(UserUtil::mapUserToUserDto)));
+                .switchIfEmpty(Mono.defer(() -> saveUserIfValid(request).map(UserUtil::mapUserToUserDto)))
+                .doOnError(Throwable::printStackTrace);
     }
 
     private Mono<User> saveUserIfValid(UserCreateRequest request) {
@@ -49,6 +52,7 @@ public class UserServiceImpl implements UserService {
         if (request.getProfilePicBase64() != null && !request.getProfilePicBase64().isBlank()) {
             user.setProfilePicBase64(request.getProfilePicBase64());
         } else {
+            log.info("default profile picture is set to {}" , request.getEmail());
             //set default pro pic
         }
         return userRepository.save(user);
@@ -58,12 +62,13 @@ public class UserServiceImpl implements UserService {
     public Mono<UserDto> findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(UserUtil::mapUserToUserDto)
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)))
+                .doOnError(Throwable::printStackTrace);
     }
 
     @Override
     public Flux<UserDto> findAllUsers() {
-        return userRepository.findAll().map(UserUtil::mapUserToUserDto);
+        return userRepository.findAll().map(UserUtil::mapUserToUserDto).doOnError(Throwable::printStackTrace);
     }
 
     @Override
@@ -78,7 +83,8 @@ public class UserServiceImpl implements UserService {
                     }
                     throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Given OTP is not valid. Please enter a valid OTP.");
                 })
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Given OTP is not valid. Please enter a valid OTP.")));
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Given OTP is not valid. Please enter a valid OTP.")))
+                .doOnError(Throwable::printStackTrace);
     }
 
     @Override
@@ -91,7 +97,8 @@ public class UserServiceImpl implements UserService {
                         throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Credentials do not match with the record");
                     }
                 })
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found")));
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found")))
+                .doOnError(Throwable::printStackTrace);
     }
 
     @Transactional
@@ -99,7 +106,8 @@ public class UserServiceImpl implements UserService {
     public Mono<ResponseMessage> proceedWithEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(user -> new ResponseMessage("Proceed to Login", 200))
-                .switchIfEmpty(Mono.defer(()-> sendEmailWithOTP(email)));
+                .switchIfEmpty(Mono.defer(()-> sendEmailWithOTP(email)))
+                .doOnError(Throwable::printStackTrace);
     }
 
     private Mono<ResponseMessage> sendEmailWithOTP(String toEmail) {
@@ -109,6 +117,7 @@ public class UserServiceImpl implements UserService {
         String otp = CommonUtil.generateCode(4);
         return createOrUpdateUserVerification(toEmail, otp)
                 .then(Mono.justOrEmpty(emailService.sendEmail(toEmail, "UnR-Email Verification", "Your verification code is " + otp))
+                        .doOnNext(email -> log.info("Verification email was sent to {} with otp {}", toEmail, otp))
                         .map(verificationCode -> new ResponseMessage("Verify Your Email", 204)));
     }
 
