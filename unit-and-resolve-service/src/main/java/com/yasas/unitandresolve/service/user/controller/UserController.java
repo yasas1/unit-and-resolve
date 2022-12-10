@@ -1,7 +1,9 @@
 package com.yasas.unitandresolve.service.user.controller;
 
 import com.yasas.unitandresolve.service.common.ResponseMessage;
+import com.yasas.unitandresolve.service.user.entity.dto.UserCreateRequest;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
+import com.yasas.unitandresolve.service.user.entity.dto.UserLoginRequest;
 import com.yasas.unitandresolve.service.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +18,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping()
-    public Mono<UserDto> createUser(@RequestBody UserDto userDto){
-        return userService.createUser(userDto);
+    public Mono<Object> createUser(@RequestBody UserCreateRequest userCreateRequest){
+        return userService.createUser(userCreateRequest);
     }
 
     @GetMapping()
@@ -38,5 +40,10 @@ public class UserController {
     @GetMapping("/{email}/verify")
     public Mono<ResponseMessage> emailVerify(@PathVariable(name = "email") String email, @RequestParam String otp){
         return userService.emailVerify(email, otp);
+    }
+
+    @PostMapping("/login")
+    public Mono<UserDto> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
+        return userService.userLogin(userLoginRequest.getEmail(), userLoginRequest.getPassword());
     }
 }

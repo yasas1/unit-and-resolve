@@ -1,12 +1,21 @@
 package com.yasas.unitandresolve.service.user.util;
 
 import com.yasas.unitandresolve.service.user.entity.User;
+import com.yasas.unitandresolve.service.user.entity.dto.UserCreateRequest;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 public class UserUtil {
     private UserUtil() {
+    }
+
+    public static User mapUserRequestToUser(UserCreateRequest request) {
+        return User.builder()
+                .email(request.getEmail())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .build();
     }
 
     public static User mapUserDtoToUser(UserDto userDto) {
@@ -29,15 +38,15 @@ public class UserUtil {
                 .build();
     }
 
-    public static void validateUserCreateRequest(UserDto userDto) {
-        if (userDto.getEmail() == null || userDto.getFirstName() == null || userDto.getLastName() == null || userDto.getPassword() == null ||
-                userDto.getEmail().isBlank() || userDto.getFirstName().isBlank() || userDto.getLastName().isBlank() || userDto.getPassword().isBlank()) {
+    public static void validateUserCreateRequest(UserCreateRequest request) {
+        if (request.getEmail() == null || request.getFirstName() == null || request.getLastName() == null || request.getPassword() == null ||
+                request.getEmail().isBlank() || request.getFirstName().isBlank() || request.getLastName().isBlank() || request.getPassword().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad user create request");
         }
-        if (!isValidEmail(userDto.getEmail())) {
+        if (!isValidEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Email format");
         }
-        if (!isStrong(userDto.getPassword())) {
+        if (!isStrong(request.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your password is not strong");
         }
     }

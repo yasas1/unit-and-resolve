@@ -1,13 +1,14 @@
 package com.yasas.unitandresolve.service.user.service;
 
 import com.yasas.unitandresolve.service.common.ResponseMessage;
+import com.yasas.unitandresolve.service.user.entity.dto.UserCreateRequest;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface UserService {
 
-    Mono<UserDto> createUser(UserDto userDto);
+    Mono<Object> createUser(UserCreateRequest userCreateRequest);
 
     Flux<UserDto> findAllUsers();
 
@@ -16,4 +17,6 @@ public interface UserService {
     Mono<ResponseMessage> proceedWithEmail(String email);
 
     Mono<ResponseMessage> emailVerify(String email, String otp);
+
+    Mono<UserDto> userLogin(String email, String password);
 }

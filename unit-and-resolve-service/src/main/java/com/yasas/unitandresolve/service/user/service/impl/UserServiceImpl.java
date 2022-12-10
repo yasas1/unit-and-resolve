@@ -5,6 +5,7 @@ import com.yasas.unitandresolve.service.common.EmailService;
 import com.yasas.unitandresolve.service.common.ResponseMessage;
 import com.yasas.unitandresolve.service.user.entity.User;
 import com.yasas.unitandresolve.service.user.entity.VerificationCode;
+import com.yasas.unitandresolve.service.user.entity.dto.UserCreateRequest;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import com.yasas.unitandresolve.service.user.repository.UserRepository;
 import com.yasas.unitandresolve.service.user.repository.VerificationCodeRepository;
@@ -24,6 +25,7 @@ import reactor.core.publisher.Mono;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private final VerificationCodeRepository verificationCodeRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -32,19 +34,24 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public Mono<UserDto> createUser(UserDto userDto) {
-        UserUtil.validateUserCreateRequest(userDto);
-        User user = UserUtil.mapUserDtoToUser(userDto);
+    public Mono<Object> createUser(UserCreateRequest request) {
+        return userRepository.findByEmail(request.getEmail())
+                .flatMap(userExist -> Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your email is already registered")))
+                .switchIfEmpty(Mono.defer(() -> saveUserIfValid(request).map(UserUtil::mapUserToUserDto)));
+    }
+
+    private Mono<User> saveUserIfValid(UserCreateRequest request) {
+        UserUtil.validateUserCreateRequest(request);
+        User user = UserUtil.mapUserRequestToUser(request);
         user.setCreatedDateTime(System.currentTimeMillis());
         user.setLastModifiedDateTime(System.currentTimeMillis());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        if (userDto.getProfilePicBase64() != null && !userDto.getProfilePicBase64().isBlank()) {
-            user.setProfilePicBase64(userDto.getProfilePicBase64());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.getProfilePicBase64() != null && !request.getProfilePicBase64().isBlank()) {
+            user.setProfilePicBase64(request.getProfilePicBase64());
         } else {
             //set default pro pic
         }
-        System.out.println(user);
-        return userRepository.save(user).map(UserUtil::mapUserToUserDto);
+        return userRepository.save(user);
     }
 
     @Override
@@ -64,13 +71,27 @@ public class UserServiceImpl implements UserService {
         return verificationCodeRepository.findByEmail(email)
                 .map(verificationCode -> {
                     if (verificationCode.getExpirationTime() < System.currentTimeMillis()) {
-                        throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Your otp is expired. Try again");
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your otp is expired. Try again.");
                     }
                     if (verificationCode.getCode().equals(otp)) {
                         return new ResponseMessage("Proceed to Registration", 200);
                     }
                     throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Given OTP is not valid. Please enter a valid OTP.");
-                });
+                })
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Given OTP is not valid. Please enter a valid OTP.")));
+    }
+
+    @Override
+    public Mono<UserDto> userLogin(String email, String password) {
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    if (passwordEncoder.matches(password, user.getPassword())) {
+                        return UserUtil.mapUserToUserDto(user);
+                    } else {
+                        throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Credentials do not match with the record");
+                    }
+                })
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found")));
     }
 
     @Transactional
