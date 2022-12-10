@@ -14,4 +14,6 @@ public interface UserService {
     Mono<UserDto> findByEmail(String email);
 
     Mono<ResponseMessage> proceedWithEmail(String email);
+
+    Mono<ResponseMessage> emailVerify(String email, String otp);
 }

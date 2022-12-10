@@ -9,5 +9,5 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface VerificationCodeRepository extends ReactiveCrudRepository<VerificationCode, String> {
     @Query("SELECT * FROM public.verification WHERE userEmail = :emai ORDER BY createddatetime  DESC LIMIT 1")
-    Mono<VerificationCode> findByIdAndUserEmail(String email);
+    Mono<VerificationCode> findByEmail(String email);
 }

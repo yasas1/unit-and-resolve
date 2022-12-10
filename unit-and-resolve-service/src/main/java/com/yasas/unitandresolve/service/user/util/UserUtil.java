@@ -34,6 +34,9 @@ public class UserUtil {
                 userDto.getEmail().isBlank() || userDto.getFirstName().isBlank() || userDto.getLastName().isBlank() || userDto.getPassword().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad user create request");
         }
+        if (!isValidEmail(userDto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Email format");
+        }
         if (!isStrong(userDto.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your password is not strong");
         }
@@ -41,6 +44,11 @@ public class UserUtil {
 
     public static boolean isStrong(String password){
         return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!\\-@%#&()_[{}]:;',?\\\\|/\".*~`$^+=<>])[A-Za-z\\d!\\-@%#&()_[{}]:;',?\\\\|/\".*~`$^+=<>]{8,}$");
+    }
+
+    public static boolean isValidEmail(String email) {
+        String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+        return email.matches(regex);
     }
 
 }

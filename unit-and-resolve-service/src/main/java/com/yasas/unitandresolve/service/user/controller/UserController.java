@@ -34,4 +34,9 @@ public class UserController {
     public Mono<ResponseMessage> proceedWithEmail(@PathVariable(name = "email") String email){
         return userService.proceedWithEmail(email);
     }
+
+    @GetMapping("/{email}/verify")
+    public Mono<ResponseMessage> emailVerify(@PathVariable(name = "email") String email, @RequestParam String otp){
+        return userService.emailVerify(email, otp);
+    }
 }

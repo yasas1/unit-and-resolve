@@ -54,6 +54,25 @@ public class UserServiceImpl implements UserService {
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 
+    @Override
+    public Flux<UserDto> findAllUsers() {
+        return userRepository.findAll().map(UserUtil::mapUserToUserDto);
+    }
+
+    @Override
+    public Mono<ResponseMessage> emailVerify(String email, String otp) {
+        return verificationCodeRepository.findByEmail(email)
+                .map(verificationCode -> {
+                    if (verificationCode.getExpirationTime() < System.currentTimeMillis()) {
+                        throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Your otp is expired. Try again");
+                    }
+                    if (verificationCode.getCode().equals(otp)) {
+                        return new ResponseMessage("Proceed to Registration", 200);
+                    }
+                    throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Given OTP is not valid. Please enter a valid OTP.");
+                });
+    }
+
     @Transactional
     @Override
     public Mono<ResponseMessage> proceedWithEmail(String email) {
@@ -63,6 +82,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private Mono<ResponseMessage> sendEmailWithOTP(String toEmail) {
+        if (!UserUtil.isValidEmail(toEmail)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Email format");
+        }
         String otp = CommonUtil.generateCode(4);
         return createOrUpdateUserVerification(toEmail, otp)
                 .then(Mono.justOrEmpty(emailService.sendEmail(toEmail, "UnR-Email Verification", "Your verification code is " + otp))
@@ -70,15 +92,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private Mono<VerificationCode> createOrUpdateUserVerification(String toEmail, String otp) {
-        return verificationCodeRepository.findByIdAndUserEmail(toEmail)
+        return verificationCodeRepository.findByEmail(toEmail)
                 .flatMap(verificationCode -> verificationCodeRepository.save(VerificationCode.builder()
                         .id(verificationCode.getId()).code(otp).userEmail(toEmail).expirationTime(System.currentTimeMillis() + 3600000).createdDateTime(System.currentTimeMillis()).build()))
                 .switchIfEmpty(Mono.defer(() -> verificationCodeRepository.save(VerificationCode.builder()
                         .code(otp).userEmail(toEmail).expirationTime(System.currentTimeMillis() + 3600000).createdDateTime(System.currentTimeMillis()).build())));
     }
 
-    @Override
-    public Flux<UserDto> findAllUsers() {
-        return userRepository.findAll().map(UserUtil::mapUserToUserDto);
-    }
 }
