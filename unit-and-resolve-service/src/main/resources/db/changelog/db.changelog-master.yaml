@@ -82,3 +82,36 @@ databaseChangeLog:
                   type: bigint
                   constraints:
                     nullable: false
+        - createTable:
+            tableName: unit
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: context
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: ownerid
+                  type: bigserial
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_owner_id
+                    references: user(id)
+

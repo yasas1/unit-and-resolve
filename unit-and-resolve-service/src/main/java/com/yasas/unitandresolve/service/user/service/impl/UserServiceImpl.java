@@ -22,6 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
+@Transactional
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
