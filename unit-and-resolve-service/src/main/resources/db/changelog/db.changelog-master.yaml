@@ -114,4 +114,21 @@ databaseChangeLog:
                     nullable: false
                     foreignKeyName: fk_user_owner_id
                     references: user(id)
-
+              - column:
+                  name: createddatetime
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lastmodifieddatetime
+                  type: bigint
+                  constraints:
+                    nullable: false
+#        - addColumn:
+#                  schema: public
+#                  tableName: unit
+#                  columns:
+#                    name: createddatetime
+#                    type: bigint
+#                    constraints:
+#                      nullable: false

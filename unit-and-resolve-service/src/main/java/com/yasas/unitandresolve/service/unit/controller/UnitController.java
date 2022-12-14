@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/units")
@@ -15,12 +18,12 @@ public class UnitController {
     private final UnitService unitService;
 
     @PostMapping()
-    public Mono<UnitDto> createUnit(@RequestBody UnitDto unitDto){
+    public Mono<UnitDto> createUnit(@Valid @RequestBody UnitDto unitDto){
         return unitService.createUnit(unitDto);
     }
 
     @PostMapping("/{id}")
-    public Mono<UnitDto> updateUnit(@RequestBody UnitDto unitDto, @PathVariable(name = "id") long id){
+    public Mono<UnitDto> updateUnit(@Valid @RequestBody UnitDto unitDto, @PathVariable(name = "id") @NotNull long id){
         unitDto.setId(id);
         return unitService.updateUnit(unitDto);
     }
