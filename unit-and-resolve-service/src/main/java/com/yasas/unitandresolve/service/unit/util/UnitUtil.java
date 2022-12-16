@@ -1,7 +1,10 @@
 package com.yasas.unitandresolve.service.unit.util;
 
 import com.yasas.unitandresolve.service.unit.entity.Unit;
+import com.yasas.unitandresolve.service.unit.entity.UserUnit;
 import com.yasas.unitandresolve.service.unit.entity.dto.UnitDto;
+import com.yasas.unitandresolve.service.unit.entity.dto.UserUnitDto;
+import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import com.yasas.unitandresolve.service.user.util.UserUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +24,7 @@ public class UnitUtil {
                 .build();
     }
 
-    public static UnitDto mapUnitToUnitDto(Unit unit) {
+    public static UnitDto mapUnitToUnitDto(Unit unit, UserDto userDto) {
         return UnitDto.builder()
                 .id(unit.getId())
                 .name(unit.getName())
@@ -30,7 +33,7 @@ public class UnitUtil {
                 .ownerId(unit.getOwnerId())
                 .createdDateTime(unit.getCreatedDateTime())
                 .lastModifiedDateTime(unit.getLastModifiedDateTime())
-                .owner(UserUtil.mapUserToUserDto(unit.getOwner()))
+                .owner(userDto)
                 .build();
     }
 
@@ -41,5 +44,23 @@ public class UnitUtil {
         if (unitDto.getOwnerId() == 0.0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit owner is mandatory");
         }
+    }
+
+    public static UserUnit mapUserUnitDtoToUserUnit(UserUnitDto userUnitDto) {
+        return UserUnit.builder()
+                .unitId(userUnitDto.getUnitId())
+                .unitId(userUnitDto.getUnitId())
+                .isAdmin(userUnitDto.isAdmin())
+                .build();
+    }
+
+    public static UserUnitDto mapUserUnitToUserUnitDto(UserUnit userUnit, UserDto userDto, UnitDto unitDto) {
+        return UserUnitDto.builder()
+                .unitId(userUnit.getUnitId())
+                .unitId(userUnit.getUnitId())
+                .isAdmin(userUnit.isAdmin())
+                .user(userDto)
+                .unit(unitDto)
+                .build();
     }
 }

@@ -68,6 +68,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Mono<UserDto> findUserById(long id) {
+        return userRepository.findById(id).map(UserUtil::mapUserToUserDto);
+    }
+
+    @Override
     public Flux<UserDto> findAllUsers() {
         return userRepository.findAll().map(UserUtil::mapUserToUserDto).doOnError(Throwable::printStackTrace);
     }

@@ -38,4 +38,9 @@ public class UnitController {
         return unitService.getUnitById(id);
     }
 
+    @GetMapping("/{id}")
+    public Flux<UnitDto> findAllAssignedUnitsByUserId(@PathVariable(name = "id") long id){
+        return unitService.getAllMyUnits(id);
+    }
+
 }

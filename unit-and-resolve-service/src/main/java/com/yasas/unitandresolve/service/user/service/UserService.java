@@ -13,6 +13,7 @@ public interface UserService {
     Flux<UserDto> findAllUsers();
 
     Mono<UserDto> findByEmail(String email);
+    Mono<UserDto> findUserById(long id);
 
     Mono<ResponseMessage> proceedWithEmail(String email);
 

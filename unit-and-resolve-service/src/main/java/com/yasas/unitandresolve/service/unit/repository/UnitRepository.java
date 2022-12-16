@@ -12,6 +12,8 @@ import reactor.core.publisher.Mono;
 public interface UnitRepository extends ReactiveCrudRepository<Unit, Long> {
     Mono<Unit> findByName(String name);
     Flux<Unit> findAll(Sort sort);
+    @Query("SELECT * FROM public.unit WHERE ownerid = :ownerId ORDER BY name ASC")
+    Flux<Unit> findByOwnerId(Long ownerId);
     @Query("SELECT * FROM public.unit WHERE name = :name AND ownerid = :ownerId ORDER BY lastmodifieddatetime DESC LIMIT 1")
     Mono<Unit> findByNameAndOwnerId(String name, Long ownerId);
 }

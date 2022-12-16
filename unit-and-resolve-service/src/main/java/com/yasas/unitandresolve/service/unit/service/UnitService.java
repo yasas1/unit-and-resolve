@@ -10,4 +10,5 @@ public interface UnitService {
     Mono<UnitDto> getUnitById(Long unitId);
     Mono<UnitDto> getUnitByName(String name);
     Flux<UnitDto> getAllUnits();
+    Flux<UnitDto> getAllMyUnits(long userId);
 }
