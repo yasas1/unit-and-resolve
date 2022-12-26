@@ -132,3 +132,43 @@ databaseChangeLog:
 #                    type: bigint
 #                    constraints:
 #                      nullable: false
+
+        - createTable:
+            tableName: user_unit
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: userid
+                  type: bigserial
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_unit_user_assigned_id
+                    references: user(id)
+              - column:
+                  name: unitid
+                  type: bigserial
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_unit_user_unit_id
+                    references: unit(id)
+              - column:
+                  name: isadmin
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: createddatetime
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: lastmodifieddatetime
+                  type: bigint
+                  constraints:
+                    nullable: false

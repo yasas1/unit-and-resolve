@@ -9,6 +9,7 @@ import com.yasas.unitandresolve.service.unit.service.UserUnitService;
 import com.yasas.unitandresolve.service.unit.util.UnitUtil;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import com.yasas.unitandresolve.service.user.service.UserService;
+import com.yasas.unitandresolve.service.user.util.UserUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,24 +30,41 @@ public class UserUnitServiceImpl implements UserUnitService {
     @Override
     public Mono<UserUnitDto> assignUserToUnit(UserUnitDto userUnitDto) {
         return unitService.getUnitById(userUnitDto.getUnitId())
-                .doOnNext(unitDto -> log.info("unit to be assigned {}", unitDto))
-                .flatMap(unitDto ->
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit is not found")))
+                .zipWith(
                         userService.findUserById(userUnitDto.getUserId())
-                                .doOnNext(userDto -> {
-                                    unitDto.setOwner(userDto);
-                                    log.info("user to assign {}", userDto);
-                                })
-                                .flatMap(userDto -> userUnitRepository.save(UnitUtil.mapUserUnitDtoToUserUnit(userUnitDto))
-                                        .map(userUnit -> UnitUtil.mapUserUnitToUserUnitDto(userUnit, userDto, unitDto)))
                                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not found")))
                 )
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit is not found")))
+                .flatMap(tuple ->
+                        userUnitRepository.save(UnitUtil.mapUserUnitDtoToUserUnit(userUnitDto))
+                                .map(userUnit -> UnitUtil.mapUserUnitToUserUnitDto(userUnit, tuple.getT2(), tuple.getT1()))
+                )
                 .doOnError(Throwable::printStackTrace);
+
+//        return unitService.getUnitById(userUnitDto.getUnitId())
+//                .doOnNext(unitDto -> log.info("unit to be assigned {}", unitDto))
+//                .flatMap(unitDto ->
+//                        userService.findUserById(userUnitDto.getUserId())
+//                                .doOnNext(userDto -> {
+//                                    log.info("user to assign {}", userDto);
+//                                })
+//                                .flatMap(userDto -> userUnitRepository.save(UnitUtil.mapUserUnitDtoToUserUnit(userUnitDto))
+//                                        .map(userUnit -> UnitUtil.mapUserUnitToUserUnitDto(userUnit, userDto, unitDto)))
+//                                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "User is not found")))
+//                )
+//                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unit is not found")))
+//                .doOnError(Throwable::printStackTrace);
     }
 
     @Override
     public Flux<UserUnitDto> findAllUserUnits() {
-        return userUnitRepository.findAll().map(userUnit -> UnitUtil.mapUserUnitToUserUnitDto(userUnit, null, null));
+        return userUnitRepository.findAll().flatMap(userUnit ->
+                        unitService.getUnitById(userUnit.getUnitId())
+                                .zipWith(userService.findUserById(userUnit.getUserId()))
+                                .map(tuple -> UnitUtil.mapUserUnitToUserUnitDto(userUnit, tuple.getT2(), tuple.getT1()))
+                )
+                .doOnError(Throwable::printStackTrace);
+       //  return userUnitRepository.findAll().map(userUnit -> UnitUtil.mapUserUnitToUserUnitDto(userUnit, null, null));
     }
 
     @Override

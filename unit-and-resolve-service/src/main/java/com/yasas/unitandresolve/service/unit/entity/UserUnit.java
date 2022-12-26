@@ -8,13 +8,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import javax.validation.constraints.NotNull;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-@Table(name = "user_unit")
+@Table(name = "public.user_unit")
 public class UserUnit {
     @Id
     private long id;
@@ -24,4 +22,8 @@ public class UserUnit {
     private long unitId;
     @Column(value = "isadmin")
     private boolean isAdmin;
+    @Column(value = "createddatetime")
+    private Long createdDateTime;
+    @Column(value = "lastmodifieddatetime")
+    private Long lastModifiedDateTime;
 }

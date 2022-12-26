@@ -17,4 +17,6 @@ public class UserUnitDto {
     private boolean isAdmin;
     private UserDto user;
     private UnitDto unit;
+    private Long createdDateTime;
+    private Long lastModifiedDateTime;
 }

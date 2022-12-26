@@ -49,18 +49,22 @@ public class UnitUtil {
     public static UserUnit mapUserUnitDtoToUserUnit(UserUnitDto userUnitDto) {
         return UserUnit.builder()
                 .unitId(userUnitDto.getUnitId())
-                .unitId(userUnitDto.getUnitId())
+                .userId(userUnitDto.getUserId())
                 .isAdmin(userUnitDto.isAdmin())
+                .createdDateTime(userUnitDto.getCreatedDateTime() == null ? System.currentTimeMillis() : userUnitDto.getCreatedDateTime())
+                .lastModifiedDateTime(userUnitDto.getLastModifiedDateTime() == null ? System.currentTimeMillis() : userUnitDto.getLastModifiedDateTime())
                 .build();
     }
 
     public static UserUnitDto mapUserUnitToUserUnitDto(UserUnit userUnit, UserDto userDto, UnitDto unitDto) {
         return UserUnitDto.builder()
                 .unitId(userUnit.getUnitId())
-                .unitId(userUnit.getUnitId())
+                .userId(userUnit.getUserId())
                 .isAdmin(userUnit.isAdmin())
                 .user(userDto)
                 .unit(unitDto)
+                .createdDateTime(userUnit.getCreatedDateTime())
+                .lastModifiedDateTime(userUnit.getLastModifiedDateTime())
                 .build();
     }
 }
