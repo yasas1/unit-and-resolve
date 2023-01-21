@@ -65,13 +65,15 @@ public class UnitServiceImpl implements UnitService {
     @Override
     public Mono<UnitDto> getUnitById(Long id) {
         return unitRepository.findById(id)
-                .flatMap(unit -> this.loadOwner(unit).map(user -> UnitUtil.mapUnitToUnitDto(unit, UserUtil.mapUserToUserDto(user))));
+                .flatMap(unit -> this.loadOwner(unit).map(user -> UnitUtil.mapUnitToUnitDto(unit, UserUtil.mapUserToUserDto(user))))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Unit is not found")));
     }
 
     @Override
     public Mono<UnitDto> getUnitByName(String name) {
         return unitRepository.findByName(name)
-                .flatMap(unit -> this.loadOwner(unit).map(user -> UnitUtil.mapUnitToUnitDto(unit, UserUtil.mapUserToUserDto(user))));
+                .flatMap(unit -> this.loadOwner(unit).map(user -> UnitUtil.mapUnitToUnitDto(unit, UserUtil.mapUserToUserDto(user))))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Unit is not found")));
     }
 
     @Override

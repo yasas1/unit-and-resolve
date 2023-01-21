@@ -9,7 +9,6 @@ import com.yasas.unitandresolve.service.unit.service.UserUnitService;
 import com.yasas.unitandresolve.service.unit.util.UnitUtil;
 import com.yasas.unitandresolve.service.user.entity.dto.UserDto;
 import com.yasas.unitandresolve.service.user.service.UserService;
-import com.yasas.unitandresolve.service.user.util.UserUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
