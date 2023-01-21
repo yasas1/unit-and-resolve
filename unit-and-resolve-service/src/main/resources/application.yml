@@ -26,3 +26,4 @@ server:
   port: 8001
   error:
     include-message: always
+    include-binding-errors: always

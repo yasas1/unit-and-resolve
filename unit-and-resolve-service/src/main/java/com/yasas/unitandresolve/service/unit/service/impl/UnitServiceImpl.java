@@ -27,6 +27,7 @@ public class UnitServiceImpl implements UnitService {
 
     private static final Sort DEFAULT_SORT = Sort.by(Sort.Order.by("id"));
 
+    @Transactional
     @Override
     public Mono<UnitDto> createUnit(UnitDto unitDto) {
         UnitUtil.validateUnitRequest(unitDto);
